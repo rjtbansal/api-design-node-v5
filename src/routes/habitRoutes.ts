@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { validateBody } from '../middleware/validation.ts';
+import { validateBody, validateParams } from '../middleware/validation.ts';
 
 const router = Router();
 const createHabitSchema = z.object({
     name: z.string(),
+});
+
+const completeParamsSchema = z.object({
+    id: z.string(),
 });
 
 router.get('/', (req, res) => {
@@ -16,7 +20,7 @@ router.post('/', validateBody(createHabitSchema), (req, res) => {
 })
 
 // Habit completion routes
-router.post('/:id/complete', (req, res) => {
+router.post('/:id/complete', validateParams(completeParamsSchema), validateBody(createHabitSchema), (req, res) => {
   res.json({ message: `Mark habit ${req.params.id} complete` })
 })
 

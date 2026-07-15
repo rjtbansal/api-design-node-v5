@@ -25,3 +25,45 @@ export const validateBody = (schema: ZodType) => {
         }
     };
 };
+
+export const validateParams = (schema: ZodType) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // no need to assign parased req.params back to req.params the way we did above because we know it will always be a string and we don't need to modify it.
+            schema.parse(req.params); 
+            next(); // Proceed to the next middleware or route handler
+        } catch (error) {
+            if(error instanceof ZodError) {
+                return res.status(400).json({
+                    error: "Invalid Parameters",
+                    details: error.issues.map(err => ({
+                        field: err.path.join('.'),
+                        message: err.message
+                    }))
+                }); // Send validation errors as response
+            }
+            next(error);
+        }
+    };
+};
+
+export const validateQuery = (schema: ZodType) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // no need to assign parased req.query back to req.query the way we did above because we know it will always be a string and we don't need to modify it.
+            schema.parse(req.query); 
+            next(); // Proceed to the next middleware or route handler
+        } catch (error) {
+            if(error instanceof ZodError) {
+                return res.status(400).json({
+                    error: "Invalid Query Parameters",
+                    details: error.issues.map(err => ({
+                        field: err.path.join('.'),
+                        message: err.message
+                    }))
+                }); // Send validation errors as response
+            }
+            next(error);
+        }
+    };
+};
